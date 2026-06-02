@@ -16,8 +16,11 @@ public class CorsConfig {
 
         CorsConfiguration config = new CorsConfiguration();
 
-        // React app origin
-        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        // Allow both local development and Vercel production
+        config.setAllowedOrigins(List.of(
+            "http://localhost:5173",
+            "https://full-stack-java-project-r9fx.vercel.app"
+        ));
 
         // Allowed HTTP methods
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
@@ -37,3 +40,4 @@ public class CorsConfig {
         return source;
     }
 }
+
