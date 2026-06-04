@@ -2,6 +2,7 @@ package com.vendora.project.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -20,8 +21,10 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CorsConfigurationSource corsConfigurationSource;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
-                          CorsConfigurationSource corsConfigurationSource) {
+    public SecurityConfig(
+            JwtAuthenticationFilter jwtAuthenticationFilter,
+            CorsConfigurationSource corsConfigurationSource) {
+
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.corsConfigurationSource = corsConfigurationSource;
     }
@@ -39,20 +42,21 @@ public class SecurityConfig {
 
             .authorizeHttpRequests(auth -> auth
 
-                // ===== PUBLIC =====
+                // ✅ Allow CORS Preflight Requests
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                // ✅ Public APIs
                 .requestMatchers(
-                    "/api/auth/login",
-                    "/api/auth/register",
-                    "/api/auth/forgot-password",
-                    "/api/auth/reset-password"
+                        "/api/auth/login",
+                        "/api/auth/register",
+                        "/api/auth/forgot-password",
+                        "/api/auth/reset-password"
                 ).permitAll()
 
                 .requestMatchers("/api/projects/public").permitAll()
-
-                // 🔥 MOST IMPORTANT – IMAGE PUBLIC
                 .requestMatchers("/api/projects/image/**").permitAll()
 
-                // ===== PROTECTED =====
+                // ✅ Protected APIs
                 .requestMatchers("/api/projects/download/**").hasRole("USER")
                 .requestMatchers("/api/orders/**").hasRole("USER")
                 .requestMatchers("/api/payments/**").hasRole("USER")
@@ -62,8 +66,8 @@ public class SecurityConfig {
             )
 
             .addFilterBefore(
-                jwtAuthenticationFilter,
-                UsernamePasswordAuthenticationFilter.class
+                    jwtAuthenticationFilter,
+                    UsernamePasswordAuthenticationFilter.class
             );
 
         return http.build();
